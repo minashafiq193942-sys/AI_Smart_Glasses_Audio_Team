@@ -9,11 +9,6 @@ import time
 
 VOICE = "ar-EG-SalmaNeural"
 
-# "ar-EG-SalmaNeural"   # مصري أنثى
-# "ar-EG-ShakirNeural"  # مصري ذكر
-# "ar-SA-ZariyahNeural" # سعودي أنثى
-# "ar-SA-HamedNeural"   # سعودي ذكر
-
 # تهيئة مشغل الصوت مرة واحدة فقط (تحسين أداء)
 pygame.mixer.init()
 
