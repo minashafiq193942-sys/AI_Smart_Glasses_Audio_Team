@@ -1,36 +1,118 @@
 import speech_recognition as sr
 
+recognizer = sr.Recognizer()
+
+# تحسينات المايك
+recognizer.energy_threshold = 300
+recognizer.dynamic_energy_threshold = True
+recognizer.pause_threshold = 0.8
+
+
 def listen_and_process():
-    recognizer = sr.Recognizer()
+
     with sr.Microphone() as source:
-        print("\n>>> أنا سامعك يا بطل.. قول أمرك (أنا فين / مين قدامي / اقرأ)")
+
+        print("\n🎤 أنا سامعك يا بطل.. قول أمرك")
+
         recognizer.adjust_for_ambient_noise(source, duration=0.5)
-        
+
         try:
-            audio = recognizer.listen(source, timeout=5)
-            text = recognizer.recognize_google(audio, language='ar-EG')
-            print(f"✅ أنت قلت: {text}")
-            
-            # منطق تحليل الأوامر (Command Logic)
-            if "فين" in text:
-                print("🚀 تنفيذ أمر: تحديد الموقع")
-                return "LOCATION"
-            elif "مين" in text or "شخص" in text:
-                print("🚀 تنفيذ أمر: التعرف على الوجوه")
-                return "FACE_ID"
-            elif "اقرأ" in text or "كتاب" in text:
-                print("🚀 تنفيذ أمر: القراءة الذكية")
-                return "READING"
-            else:
-                print("🤔 أمر غير معروف، حاول تاني.")
-                return None
-                
-        except Exception as e:
-            print("❌ مسمعتش كويس، ممكن تعيد؟")
+
+            audio = recognizer.listen(source, timeout=5, phrase_time_limit=4)
+
+            text = recognizer.recognize_google(audio, language="ar-EG")
+
+            text = text.strip().lower()
+
+            print("✅ أنت قلت:", text)
+
+            # ------------------------------
+            # كلمات الأوامر
+            # ------------------------------
+
+            location_words = [
+                "فين",
+                "انا فين",
+                "احنا فين",
+                "مكاني",
+                "موقعي",
+                "المكان"
+            ]
+
+            face_words = [
+                "مين",
+                "مين قدامي",
+                "الشخص",
+                "شخص",
+                "ده مين"
+            ]
+
+            read_words = [
+                "اقرأ",
+                "اقرا",
+                "كتاب",
+                "النص",
+                "اقرالي"
+            ]
+
+            sos_words = [
+                "ساعدني",
+                "استغاثه",
+                "نجده",
+                "الحقني"
+            ]
+
+            # ------------------------------
+            # تحليل الكلام
+            # ------------------------------
+
+            for word in location_words:
+                if word in text:
+                    return "LOCATION"
+
+            for word in face_words:
+                if word in text:
+                    return "FACE_ID"
+
+            for word in read_words:
+                if word in text:
+                    return "READING"
+
+            for word in sos_words:
+                if word in text:
+                    return "SOS"
+
             return None
 
+        except sr.WaitTimeoutError:
+
+            print("⌛ لم يتم سماع صوت")
+
+            return None
+
+        except sr.UnknownValueError:
+
+            print("❌ لم أفهم الكلام")
+
+            return None
+
+        except sr.RequestError:
+
+            print("⚠️ مشكلة في الاتصال بالإنترنت")
+
+            return None
+
+        except Exception as e:
+
+            print("⚠️ خطأ:", e)
+
+            return None
+
+
 if __name__ == "__main__":
+
     while True:
+
         command = listen_and_process()
-        if command:
-            print(f"--- إرسال الإشارة للفريق المختص: {command} ---")
+
+        print("Command:", command)
